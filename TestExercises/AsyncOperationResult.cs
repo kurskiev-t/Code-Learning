@@ -26,11 +26,13 @@ public class AsyncOperationResult
     // но в моем случае мне думаю достаточно свойство публичное добавить, геттер то есть
     public Action? Continuation => _continuation;
 
+    public Task? AsyncOperationTask { get; set; }
+
     public void OnCompleted(Action continuation)
     {
         if (OperationStatus == OperationStatus.Completed)
         {
-            continuation();          // уже готово — выполняем сразу
+            continuation(); // уже готово — выполняем сразу
         }
         else
         {

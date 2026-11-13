@@ -18,6 +18,13 @@ internal class StateMachine
 
     private int _state = 0;
 
+    private readonly AsyncOperationResult _stateMachineResult = new();
+
+    public AsyncOperationResult StateMachineResult
+    {
+        get { return _stateMachineResult; }
+    }
+
     // public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
     // допустим принимает работу, которая принимает переменную любого типа
     //public static AsyncOperationResult MoveNext<T>(Action<T> someWork)
@@ -27,12 +34,19 @@ internal class StateMachine
     // кто-то должен каждый раз вызывать MoveNext(), чтоб код продолжился дальше с нужного места... AsyncWorkOrchestrator получается
     public AsyncOperationResult MoveNext(AsyncOperation someAsynchronousOperation)
     {
-        switch(_state)
+        var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = cancellationTokenSource.Token;
+
+        StateMachineResult.AsyncOperationTask = new Task(() => { }, cancellationToken);
+
+        switch (_state)
         {
             case 0:
                 {
+                    _stateMachineResult.OperationStatus = OperationStatus.InProgress;
+
                     // мне надо запустить работу, если она не завершена
-                    if(someAsynchronousOperation.OperationResult.OperationStatus != OperationStatus.Completed)
+                    if (someAsynchronousOperation.OperationResult.OperationStatus != OperationStatus.Completed)
                     {
                         // хуй знает пока сделаю метод для примера start
                         // бля а это работа при текущей моей реализации пойдет выполняться синхронно
@@ -66,6 +80,8 @@ internal class StateMachine
                     else
                     {
                         _state = 1;
+                        this.MoveNext(someAsynchronousOperation);
+
                         // goto - по сути просто не делать return - и тогда код пойдет к следующему кейсу...
                     }
 
@@ -73,7 +89,14 @@ internal class StateMachine
                 }
             case 1:
                 {
-                    Console.WriteLine($"Last line of supposedly transferred tail code from original method (in this case main). This is thread: {Thread.CurrentThread.ManagedThreadId}");
+                    _stateMachineResult.OperationStatus = OperationStatus.Completed;
+                    
+                    if(_stateMachineResult.Continuation is not null)
+                        _stateMachineResult.Continuation();
+
+                    cancellationTokenSource.Cancel();
+
+                    // Console.WriteLine($"Last line of supposedly transferred tail code from original method (in this case main). This is thread: {Thread.CurrentThread.ManagedThreadId}");
                     return someAsynchronousOperation.OperationResult;
                 }
             default:

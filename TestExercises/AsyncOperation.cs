@@ -2,7 +2,7 @@
 
 public class AsyncOperation
 {
-    private AsyncOperationResult _thisOperationResult = new AsyncOperationResult();
+    private readonly AsyncOperationResult _thisOperationResult = new();
     private readonly Action _someWorkToDoAsynchronously;
 
     public AsyncOperationResult OperationResult

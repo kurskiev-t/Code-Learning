@@ -17,6 +17,7 @@ namespace TestExercises
             // у меня есть какая-то работа
             // я ее передаю в машину состояний            
             var stateMachine = new StateMachine();
+
             var asyncOperationResult = stateMachine.MoveNext(new AsyncOperation(() => SomeWork()));
 
             // Понял, это будет следующий уровень, и это будет регаться не здесь. Это по сути должно выполниться в последнем case машины состояний
@@ -29,22 +30,22 @@ namespace TestExercises
             //    Console.WriteLine($"Last line in main. This is thread: {Thread.CurrentThread.ManagedThreadId}");
             //});
 
-            await Task.Delay(6000);
+            // Кстати, вопрос, тут захватится замыканием Thread.CurrentThread.ManagedThreadId текущего потока, или это вызовется в момент завершения как надо и выведется поток,
+            // который будет работать в тот момент
+            stateMachine.StateMachineResult.OnCompleted(() => { Console.WriteLine($"Last line in main. This is thread: {Thread.CurrentThread.ManagedThreadId}"); });
+
+            await stateMachine.StateMachineResult.AsyncOperationTask!;
+
+
 
             // Console.WriteLine($"Last line in main. This is thread: {Thread.CurrentThread.ManagedThreadId}");
-         }
+        }
 
         private static void SomeWork()
         {
             Console.WriteLine($"Starting some work. This is thread: {Thread.CurrentThread.ManagedThreadId}");
 
-            var timer = new Stopwatch();
-            timer.Start();
-
-            while(timer.ElapsedMilliseconds < 5000)
-            {
-                Thread.Sleep(1000);
-            }
+            Thread.Sleep(4000);
 
             Console.WriteLine($"Ending some work. This is thread: {Thread.CurrentThread.ManagedThreadId}");
         }
