@@ -5,7 +5,7 @@
 // и отпустить поток, и запомнить где вернуться
 internal class StateMachine
 {
-    // what should have this?
+    // what this should have?
     // states... obviously...
     // saved variables?
     // what else?
@@ -34,11 +34,6 @@ internal class StateMachine
     // кто-то должен каждый раз вызывать MoveNext(), чтоб код продолжился дальше с нужного места... AsyncWorkOrchestrator получается
     public AsyncOperationResult MoveNext(AsyncOperation someAsynchronousOperation)
     {
-        var cancellationTokenSource = new CancellationTokenSource();
-        var cancellationToken = cancellationTokenSource.Token;
-
-        StateMachineResult.AsyncOperationTask = new Task(() => { }, cancellationToken);
-
         switch (_state)
         {
             case 0:
@@ -66,7 +61,7 @@ internal class StateMachine
                         // чекнул че такое события, при таком раскладе при вызове события мне надо передать туда такой метод MoveNext, в котором state = 1 я просто щас в режиме
                         // ничего не знаю и просто пробую
 
-                        // здесь у меня еще и закмыкание и захват _state в объект из-за лямбды. чем это чревато? долго думать и сейчас моя задача не в микро-оптимизациях
+                        // здесь у меня еще и закмыкание и захват _state в объект из-за лямбды. чем это чревато? долго думать... сейчас моя задача не в микро-оптимизациях
                         // а добиться рабочего варианта
                         someAsynchronousOperation.OperationResult.OnCompleted(() =>
                         {
@@ -94,7 +89,7 @@ internal class StateMachine
                     if(_stateMachineResult.Continuation is not null)
                         _stateMachineResult.Continuation();
 
-                    cancellationTokenSource.Cancel();
+                    _stateMachineResult.SetAsyncOperationResult();
 
                     // Console.WriteLine($"Last line of supposedly transferred tail code from original method (in this case main). This is thread: {Thread.CurrentThread.ManagedThreadId}");
                     return someAsynchronousOperation.OperationResult;

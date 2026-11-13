@@ -34,7 +34,7 @@ namespace TestExercises
             // который будет работать в тот момент
             stateMachine.StateMachineResult.OnCompleted(() => { Console.WriteLine($"Last line in main. This is thread: {Thread.CurrentThread.ManagedThreadId}"); });
 
-            await stateMachine.StateMachineResult.AsyncOperationTask!;
+            await stateMachine.StateMachineResult.AsyncOperationTask;
 
 
 

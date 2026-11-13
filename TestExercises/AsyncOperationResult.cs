@@ -12,6 +12,8 @@ public enum OperationStatus
 
 public class AsyncOperationResult
 {
+    private readonly TaskCompletionSource _taskCompletionSource = new();
+
     private Action? _continuation;
 
     public OperationStatus OperationStatus { get; set; }
@@ -26,7 +28,12 @@ public class AsyncOperationResult
     // но в моем случае мне думаю достаточно свойство публичное добавить, геттер то есть
     public Action? Continuation => _continuation;
 
-    public Task? AsyncOperationTask { get; set; }
+    public Task AsyncOperationTask => _taskCompletionSource.Task;
+
+    public void SetAsyncOperationResult()
+    {
+        _taskCompletionSource.SetResult();
+    }
 
     public void OnCompleted(Action continuation)
     {
@@ -38,5 +45,9 @@ public class AsyncOperationResult
         {
             _continuation = continuation;  // ещё не готово — запоминаем
         }
+
+        // неправильно, здесь мы даем вызывающему коду подписаться на завершение работы, и если тут же установим таску в RunToCompletion
+        // то в main await будет на завершенном таске сразу, и работа не успеет выполниться, так как ThreadPool потоки background...
+        // _taskCompletionSource.SetResult();
     }
 }
