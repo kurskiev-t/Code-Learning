@@ -1,4 +1,4 @@
-﻿namespace TestExercises;
+﻿namespace AsyncAwaitInDepth;
 
 // why the fuck by default the property is of init type... perhaps records work that way
 // internal record AsyncOperationResult(bool IsCompleted = false);

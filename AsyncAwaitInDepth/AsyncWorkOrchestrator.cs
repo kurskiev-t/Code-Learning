@@ -1,4 +1,4 @@
-﻿namespace TestExercises;
+﻿namespace AsyncAwaitInDepth;
 
 internal static class AsyncWorkOrchestrator
 {

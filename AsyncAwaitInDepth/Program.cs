@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace TestExercises
+namespace AsyncAwaitInDepth
 {
     internal class Program
     {

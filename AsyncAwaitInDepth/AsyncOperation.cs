@@ -1,4 +1,4 @@
-﻿namespace TestExercises;
+﻿namespace AsyncAwaitInDepth;
 
 public class AsyncOperation
 {
